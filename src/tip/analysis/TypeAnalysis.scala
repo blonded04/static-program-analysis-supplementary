@@ -102,8 +102,10 @@ class TypeAnalysis(program: AProgram)(implicit declData: DeclarationData) extend
     log.verb(s"Visiting ${node.getClass.getSimpleName} at ${node.loc}")
     node match {
       case program: AProgram =>
-        program.mainFunction.params.foreach(unify(_, IntType()))
-        unify(program.mainFunction, FunctionType(program.mainFunction.params, IntType()))
+        if (program.hasMainFunction) {
+          program.mainFunction.params.foreach(unify(_, IntType()))
+          unify(program.mainFunction, FunctionType(program.mainFunction.params, IntType()))
+        }
       case _: ANumber => unify(node, IntType())
       case _: AInput => unify(node, IntType())
       case is: AIfStmt => unify(is.guard, IntType())
