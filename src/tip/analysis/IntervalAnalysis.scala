@@ -1,7 +1,7 @@
 package tip.analysis
 
-import tip.cfg._
 import tip.ast.AstNodeData.DeclarationData
+import tip.cfg._
 import tip.lattices.IntervalLattice._
 import tip.lattices._
 import tip.solvers._
@@ -35,7 +35,16 @@ trait IntervalAnalysisWidening extends ValueAnalysisMisc with Dependencies[CfgNo
     (x, y) match {
       case (IntervalLattice.EmptyInterval, _) => y
       case (_, IntervalLattice.EmptyInterval) => x
-      case ((l1, h1), (l2, h2)) => ??? //<--- Complete here
+      case ((l1, h1), (l2, h2)) =>
+        var l3: Num = MInf
+        if (l1 <= l2) {
+          l3 = l1
+        }
+        var h3: Num = PInf
+        if (h2 <= h1) {
+          h3 = h1
+        }
+        (l3, h3)
     }
 
   def widen(x: liftedstatelattice.Element, y: liftedstatelattice.Element): liftedstatelattice.Element =
