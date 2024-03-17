@@ -1,13 +1,11 @@
 package tip.analysis
 
+import tip.ast.AstNodeData.{AstNodeWithDeclaration, DeclarationData}
 import tip.ast._
 import tip.cfg.CfgOps._
 import tip.cfg._
 import tip.lattices._
 import tip.solvers._
-import tip.ast.AstNodeData.{AstNodeWithDeclaration, DeclarationData}
-
-import scala.collection.immutable.Set
 
 /**
   * General definitions for value analysis.
@@ -69,10 +67,13 @@ trait ValueAnalysisMisc {
       case r: CfgStmtNode =>
         r.data match {
           // var declarations
-          case varr: AVarStmt => ??? //<--- Complete here
+          case varr: AVarStmt =>
+            var st = s
+            varr.declIds.foreach(dec => st += (dec -> valuelattice.top))
+            st
 
           // assignments
-          case AAssignStmt(id: AIdentifier, right, _) => ??? //<--- Complete here
+          case AAssignStmt(id: AIdentifier, right, _) => s + ((id: ADeclaration) -> eval(right, s))
 
           // all others: like no-ops
           case _ => s
