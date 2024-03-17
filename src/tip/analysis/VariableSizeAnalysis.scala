@@ -6,9 +6,7 @@ import tip.lattices.IntervalLattice._
 import tip.lattices._
 import tip.solvers._
 
-trait IntervalAnalysisWidening extends ValueAnalysisMisc with Dependencies[CfgNode] {
-
-  import tip.cfg.CfgOps._
+trait VariableSizeAnalysisWidening extends ValueAnalysisMisc with Dependencies[CfgNode] {
 
   val cfg: ProgramCfg
 
@@ -19,11 +17,16 @@ trait IntervalAnalysisWidening extends ValueAnalysisMisc with Dependencies[CfgNo
   /**
     * Int values occurring in the program, plus -infinity and +infinity.
     */
-  private val B = cfg.nodes.flatMap { n =>
-    n.appearingConstants.map { x =>
-      IntNum(x.value): Num
-    } + MInf + PInf
-  }
+  private val B = Set[Num](
+    0: Num,
+    1: Num,
+    Int.MinValue: Num,
+    Int.MaxValue: Num,
+    Short.MinValue: Num,
+    Short.MaxValue: Num,
+    Byte.MinValue: Num,
+    Byte.MaxValue: Num
+  ) + MInf + PInf
 
   def loophead(n: CfgNode): Boolean = indep(n).exists(cfg.rank(_) > cfg.rank(n))
 
@@ -58,7 +61,7 @@ trait IntervalAnalysisWidening extends ValueAnalysisMisc with Dependencies[CfgNo
     }
 }
 
-object IntervalAnalysis {
+object VariableSizeAnalysis {
 
   object Intraprocedural {
 
@@ -68,7 +71,7 @@ object IntervalAnalysis {
     class WorklistSolverWithWidening(cfg: IntraproceduralProgramCfg)(implicit declData: DeclarationData)
         extends IntraprocValueAnalysisWorklistSolverWithReachability(cfg, IntervalLattice)
         with WorklistFixpointSolverWithReachabilityAndWidening[CfgNode]
-        with IntervalAnalysisWidening
+        with VariableSizeAnalysisWidening
 
     /**
       * Interval analysis, using the worklist solver with init, widening, and narrowing.
@@ -76,7 +79,7 @@ object IntervalAnalysis {
     class WorklistSolverWithWideningAndNarrowing(cfg: IntraproceduralProgramCfg)(implicit declData: DeclarationData)
         extends IntraprocValueAnalysisWorklistSolverWithReachability(cfg, IntervalLattice)
         with WorklistFixpointSolverWithReachabilityAndWideningAndNarrowing[CfgNode]
-        with IntervalAnalysisWidening {
+        with VariableSizeAnalysisWidening {
 
       val narrowingSteps = 5
     }

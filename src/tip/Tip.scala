@@ -1,18 +1,17 @@
 package tip
 
-import java.io.{File, FileFilter}
-
 import org.parboiled2.ParseError
 import tip.analysis.FlowSensitiveAnalysis.{Analysis => dfa, AnalysisOption => dfo}
 import tip.analysis._
 import tip.ast.AstNodeData._
 import tip.ast.{AProgram, NoNormalizer}
-import tip.concolic.ConcolicEngine
 import tip.cfg._
+import tip.concolic.ConcolicEngine
 import tip.interpreter.ConcreteInterpreter
 import tip.parser.TipParser
 import tip.util._
 
+import java.io.{File, FileFilter}
 import scala.io.Source
 import scala.util.{Failure, Success}
 
@@ -116,6 +115,7 @@ object Tip extends App {
         | -reaching          enable reaching definitions analysis
         | -constprop         enable constant propagation analysis
         | -interval          enable interval analysis
+        | -size              enable size analysis
         | -copyconstprop     enable copy constant propagation analysis
         | -uninitvars        enable possibly-uninitialized variables analysis
         | -taint             enable taint analysis
@@ -336,7 +336,8 @@ object Tip extends App {
           options.andersen = true
         case "-steensgaard" =>
           options.steensgaard = true
-        case "-sign" | "-livevars" | "-available" | "-vbusy" | "-reaching" | "-constprop" | "-interval" | "-copyconstprop" | "-uninitvars" | "-taint" =>
+        case "-sign" | "-livevars" | "-available" | "-vbusy" | "-reaching" | "-constprop" | "-interval" | "-size" | "-copyconstprop" | "-uninitvars" |
+            "-taint" =>
           options.dfAnalysis += dfa.withName(args(i).drop(1)) -> {
             if (i + 1 < args.length && dfo.values.map(_.toString()).contains(args(i + 1))) {
               i = i + 1
