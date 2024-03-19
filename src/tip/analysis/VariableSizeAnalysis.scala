@@ -17,16 +17,14 @@ trait VariableSizeAnalysisWidening extends ValueAnalysisMisc with Dependencies[C
   /**
     * Int values occurring in the program, plus -infinity and +infinity.
     */
-  private val B = Set[Num](
-    0: Num,
-    1: Num,
-    Int.MinValue: Num,
-    Int.MaxValue: Num,
-    Short.MinValue: Num,
-    Short.MaxValue: Num,
-    Byte.MinValue: Num,
-    Byte.MaxValue: Num
-  ) + MInf + PInf
+  private val B: Set[Num] = (() => {
+    var result = Set[Num](MInf, 0, PInf)
+    for (i <- 1 to 31) {
+      result += (-math.pow(2, i)).intValue
+      result += (math.pow(2, i).longValue() - 1).intValue
+    }
+    result
+  })()
 
   def loophead(n: CfgNode): Boolean = indep(n).exists(cfg.rank(_) > cfg.rank(n))
 
